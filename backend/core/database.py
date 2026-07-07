@@ -17,7 +17,7 @@ def get_db():
     try:
         # Use certifi for SSL certificate verification (fixes common Atlas connection issues)
         client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
-        db = client.omnisense  # Database name
+        db = client.crowdsense  # Database name
         # Quick test connection
         client.admin.command('ping')
         return db

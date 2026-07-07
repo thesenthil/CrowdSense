@@ -6,7 +6,7 @@ import time
 import threading
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'omnisense_super_secret_key'
+app.config['SECRET_KEY'] = 'crowdsense_super_secret_key'
 CORS(app) # Allow frontend to connect
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
@@ -20,7 +20,7 @@ analytics_data = {
 
 @app.route('/api/status', methods=['GET'])
 def get_status():
-    """Returns the current status of the OmniSense backend."""
+    """Returns the current status of the crowdsense backend."""
     return jsonify({
         "status": "online",
         "database": "connected" if db is not None else "disconnected",
@@ -54,7 +54,7 @@ def get_daily_report():
 @socketio.on('connect')
 def handle_connect():
     print('Client connected to real-time stream')
-    emit('status_update', {'message': 'Connected to OmniSense Backend'})
+    emit('status_update', {'message': 'Connected to crowdsense Backend'})
 
 def background_analytics_simulator():
     """Simulates real-time analytics if no live camera is connected."""
@@ -64,7 +64,7 @@ def background_analytics_simulator():
         time.sleep(5)
 
 if __name__ == '__main__':
-    print("Starting OmniSense AI Backend on port 5000...")
+    print("Starting crowdsense AI Backend on port 5000...")
     # Start background thread
     threading.Thread(target=background_analytics_simulator, daemon=True).start()
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

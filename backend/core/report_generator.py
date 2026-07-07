@@ -36,7 +36,7 @@ def generate_daily_report():
     
     # Construct the data summary prompt
     prompt = f"""
-    You are OmniSense AI, an intelligent venue monitoring system. Generate a professional, 
+    You are crowdsense AI, an intelligent venue monitoring system. Generate a professional, 
     concise daily executive summary report for venue management based on the following data 
     from the last 24 hours:
     
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     print("Generating report...")
     res = generate_daily_report()
     if res.get("success"):
-        print("\n--- OMNISENSE DAILY REPORT ---\n")
+        print("\n--- crowdsense DAILY REPORT ---\n")
         print(res["report"])
     else:
         print(res)
