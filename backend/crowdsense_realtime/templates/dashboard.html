@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd Sense Detection - Dashboard</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    
+    <!-- Professional Toggle Switch Styles - Modern & Aesthetic -->
+    <style>
+        /* PROFESSIONAL TOGGLE SWITCH - Beautiful Design */
+        #sidebarToggleNav.sidebar-toggle-switch {
+            position: relative !important;
+            display: inline-block !important;
+            width: 70px !important;
+            height: 38px !important;
+            margin-right: 2rem !important;
+            margin-left: 0.5rem !important;
+            vertical-align: middle !important;
+            background-color: #e0e0e0 !important;
+            background: #e0e0e0 !important;
+            border-radius: 34px !important;
+            cursor: pointer !important;
+            border: none !important;
+            padding: 0 !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        #sidebarToggleNav.sidebar-toggle-switch .toggle-slider {
+            position: absolute !important;
+            height: 30px !important;
+            width: 30px !important;
+            left: 4px !important;
+            bottom: 4px !important;
+            background: white !important;
+            border-radius: 50% !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
+            z-index: 2 !important;
+        }
+        
+        /* ACTIVE STATE - Beautiful Purple/Pink Gradient */
+        #sidebarToggleNav.sidebar-toggle-switch.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+            background-color: transparent !important;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        #sidebarToggleNav.sidebar-toggle-switch.active .toggle-slider {
+            transform: translateX(32px) !important;
+            left: 32px !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5) !important;
+        }
+        
+        /* Hover Effects */
+        #sidebarToggleNav.sidebar-toggle-switch:hover {
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        #sidebarToggleNav.sidebar-toggle-switch.active:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a3d91 50%, #e082f0 100%) !important;
+            box-shadow: 0 0 25px rgba(102, 126, 234, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Click Animation */
+        #sidebarToggleNav.sidebar-toggle-switch:active {
+            transform: scale(0.95) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-video me-2"></i>Crowd Sense Detection
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showAnalytics()">
+                            <i class="fas fa-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="testAdDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-video me-1"></i>Test Ads
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="testAd('male'); return false;">Test Male Ad</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="testAd('female'); return false;">Test Female Ad</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="testAd('neutral'); return false;">Test Neutral Ad</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid mt-5 pt-4">
+        <div class="row">
+            <!-- Left Sidebar - Stats Cards (Collapsible) -->
+            <div class="col-lg-3 col-md-12 mb-4 sidebar-column" id="leftSidebar">
+                <!-- Total Count Card -->
+                <div class="card stats-card mb-3" data-aos="fade-up">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                        <h5 class="card-title">Total People</h5>
+                        <small class="text-muted d-block mb-2">Current crowd count</small>
+                        <h2 class="display-4 fw-bold text-primary" id="total-count">0</h2>
+                    </div>
+                </div>
+
+                <!-- Male Count Card -->
+                <div class="card stats-card mb-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mars fa-2x text-info mb-2"></i>
+                        <h5 class="card-title">Male</h5>
+                        <small class="text-muted d-block mb-2">Adult males detected</small>
+                        <h2 class="display-4 fw-bold text-info" id="male-count">0</h2>
+                    </div>
+                </div>
+
+                <!-- Female Count Card -->
+                <div class="card stats-card mb-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-body text-center">
+                        <i class="fas fa-venus fa-2x text-danger mb-2"></i>
+                        <h5 class="card-title">Female</h5>
+                        <small class="text-muted d-block mb-2">Adult females detected</small>
+                        <h2 class="display-4 fw-bold text-danger" id="female-count">0</h2>
+                    </div>
+                </div>
+
+
+
+                <!-- Crowd Limit Card -->
+                <div class="card stats-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Crowd Limit
+                        </h5>
+                        <small class="text-muted d-block mb-2">Set max capacity alert</small>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" id="limit-input" placeholder="Set limit" min="0">
+                            <button class="btn btn-success" type="button" id="set-limit-btn">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                        <div class="alert alert-info mb-0" id="status-display">
+                            <i class="fas fa-info-circle me-2"></i>Status: Safe (No Limit)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center - Video Feed -->
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-lg" data-aos="zoom-in">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-video me-2"></i>Live Camera Feed
+                        </h5>
+                    </div>
+                    <div class="card-body p-0" id="video-container">
+                        <img id="video" src="{{ url_for('video_feed') }}" 
+                             alt="Loading Video Feed..." class="img-fluid w-100" 
+                             style="max-height: 70vh; object-fit: contain;">
+                    </div>
+                </div>
+
+                <!-- Ad Display Area (below video) -->
+                <div class="card shadow mt-3" data-aos="fade-up">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bullhorn me-2"></i>Targeted Advertisement
+                        </h5>
+                </div>
+                    <div class="card-body text-center" id="ad-display-area">
+                        <p class="text-muted">Waiting for detection...</p>
+            </div>
+        </div>
+            </div>
+            
+            <!-- Right Sidebar - Analytics & Info -->
+            <div class="col-lg-3 col-md-12 mb-4">
+                <!-- Gender Distribution Chart -->
+                <div class="card stats-card mb-3" data-aos="fade-left">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-pie me-2"></i>Gender Distribution
+                        </h5>
+                        <small class="text-muted d-block mb-2">Current male/female ratio</small>
+                        <canvas id="genderChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Majority Group -->
+                <div class="card stats-card mb-3" data-aos="fade-left" data-aos-delay="100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">
+                            <i class="fas fa-trophy me-2"></i>Majority Group
+                        </h5>
+                        <small class="text-muted d-block mb-2">Dominant audience type</small>
+                        <h3 class="fw-bold text-success" id="majority-label">Unknown</h3>
+                    </div>
+                </div>
+
+                <!-- Real-time Stats -->
+                <div class="card stats-card" data-aos="fade-left" data-aos-delay="200">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line me-2"></i>Real-time Stats
+                        </h5>
+                        <small class="text-muted d-block mb-2">Performance metrics</small>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="fas fa-eye me-2"></i>Peak Count</span>
+                                <strong id="peak-count">0</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="fas fa-ad me-2"></i>Ads Shown</span>
+                                <strong id="ads-shown">0</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="fas fa-clock me-2"></i>Uptime</span>
+                                <strong id="uptime">0s</strong>
+                            </li>
+                        </ul>
+                    </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+    <!-- Ad Popup Container (hidden by default, shown via JS) -->
+    <div id="ad-popup-container" class="ad-popup-container"></div>
+
+    <!-- Analytics Modal -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <canvas id="trendChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="adChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody id="analytics-table">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- SocketIO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Initialize SocketIO connection
+        const socket = io();
+        
+        // Ensure DOM is fully ready before initializing
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initializeDashboard(socket);
+            });
+        } else {
+            // DOM is already ready
+            initializeDashboard(socket);
+        }
+        
+        // Test ad function
+        function testAd(gender) {
+            console.log('[TEST] Triggering test ad for:', gender);
+            fetch(`/test/ad/${gender}`)
+                    .then(r => r.json())
+                    .then(data => {
+                    console.log('[TEST] Test ad response:', data);
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Test Ad Triggered',
+                            text: `Ad for ${gender} has been sent`,
+                            timer: 2000
+                        });
+                        } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'No Ad Available',
+                            text: data.error || 'No ads found',
+                            html: `Available ads:<br>Male: ${data.available?.male || 0}<br>Female: ${data.available?.female || 0}<br>Neutral: ${data.available?.neutral || 0}`
+                        });
+                    }
+                })
+                .catch(e => {
+                    console.error('[TEST] Error:', e);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to trigger test ad'
+                    });
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name": "Crowd Detection App",
+  "description": "A web-based crowd detection and analysis application.",
+  "requestFramePermissions": []
+}
